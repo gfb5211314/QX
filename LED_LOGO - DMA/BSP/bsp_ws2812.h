@@ -109,7 +109,126 @@ void  led_opening(volatile uint16_t  amount, colors_kind  color, volatile uint8_
 void  led_type(volatile uint16_t  amount,  color_type* p);
 
 
+void  RGBTOGRB(uint16_t count, uint8_t p[][3]);
 
+/**
+  * @brief  Shift the array's LED data to the 0 position of the array
+  * @param  led_location :  The location of the LED
+  * @param  uint8_t p :  An array of converted data
+  * @retval None
+  */
+void shift_buf_to_data_one(uint16_t led_location);
+
+/**
+  * @brief  Move the array's LED data to position 1 of the array
+  * @param  led_location :  The location of the LED
+  * @param  uint8_t p :  An array of converted data
+  * @retval None
+  */
+void shift_buf_to_data_two(uint16_t led_location);
+
+/**
+  * @brief  Convert GRB data into PWM arrays
+  * @param  led_location :  number of led
+  * @retval None
+  */
+
+
+void GRBTOPWM(uint16_t led_max);
+
+void ws2812_init();
+
+void  SET_PWM_DMA_DODE(uint32_t mode);
+
+
+
+
+
+
+
+
+
+
+/********************************************************************
+       以下函数采用半传输中断更新数据，优化的底层函数和应用函数
+                    BOTTOM function
+               *DMA_WS2812_Reset              ws2812复位
+               *DMA_WS2812_light              ws2812亮
+               *DMA_WS2812_Mie                ws2812灭
+               *DMA_WS2812_SIN                正弦函数
+                     APP
+               *DMA_WS2812_Ramp                渐变效果一会灭一会亮,采用正弦
+               *DMA_WS2812_Run                 依次亮(每个都亮，每个灯位置颜色不同)
+               *DMA_WS2812_Running             几个跑(亮度相同,几个跑起来)
+               *DMA_WS2812_Ramping             同一类颜色渐变 (深红,浅红)
+
+**********************************************************************/
+/********复位************/
+void DMA_WS2812_Reset();
+
+void DMA_WS2812_light(uint16_t led_n);
+
+void DMA_WS2812_Mie(uint16_t led_n);
+
+/**********单种颜色数据的值*****************/
+void DMA_WS2812_SIN(uint16_t amount, uint8_t pwm, colors_kind color);
+
+/**********多种颜色组合渐变*****************/
+void DMA_WS2812_SIN_More(uint16_t amount, uint8_t pwm, uint8_t color_ty);
+
+
+
+/***灭数据移位************/
+void DMA_WS2812_data_shift(uint16_t led_location);
+
+
+void DMA_WS2812_Ramp(volatile uint16_t  amount, uint8_t pwm, colors_kind color);
+
+
+
+
+
+/***全亮数据移位,第几个位置灯的颜色，由我设置**/
+/***配色函数***********************/
+void DMA_WS2812_data_shift_light(uint16_t led_location, uint16_t led_max);
+
+
+void DMA_WS2812_Run(volatile uint16_t  amount);
+
+/***多种颜色一起渐变***************/
+void DMA_WS2812_Rampping(volatile uint16_t  amount, uint8_t pwm, colors_kind color);
+
+/*********单中颜色渐变***************/
+void DMA_WS2812_Rampping_1(volatile uint16_t  amount, uint8_t pwm, colors_kind color);
+
+
+void DMA_WS2812_Running(volatile uint16_t  amount);
+
+/**
+  *@brief gets the maximun value of rgb
+	*@param r_data   value of red range( 0-255)
+  *@param g_data   value of red range( 0-255)
+	*@param b_data   value of red range( 0-255)
+	*@retval   renturn RGB maximum number
+  */
+uint8_t get_rgb_max_value(uint8_t r_data, uint8_t g_data, uint8_t b_data);
+
+/**
+  *@brief gets the minimum value of rgb
+  *@param r_data   value of red range( 0-255)
+  *@param g_data   value of red range( 0-255)
+	*@param b_data   value of red range( 0-255)
+  */
+double get_rgb_min_value(double r_data, double g_data, double b_data);
+
+void RGB2HLS(double* h, double* l, double* s, uint8_t r_data, uint8_t g_data, uint8_t b_data);
+
+
+double HLS2RGBvalue(double n1, double n2, double hue);
+
+void HLS2RGB(uint8_t* r, uint8_t* g, uint8_t* b, double h, double l, double s);
+
+void HLS_TO_RGB_ALL(uint8_t* r, uint8_t* g, uint8_t* b, double h, double l, double s, uint16_t led_n, uint8_t (*arr)[3]);
 
 
 

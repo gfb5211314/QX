@@ -3,6 +3,7 @@
 #include  "math.h"
 #include   "bsp_dma.h"
 #include "string.h"
+#include <stdlib.h>
 
 extern TIM_HandleTypeDef htim2;
 extern TIM_HandleTypeDef htim3;
@@ -66,8 +67,6 @@ uint16_t   ws28128_color_data[48] = {30, 30, 30, 30, 30, 30, 30, 30,
                                      30, 30, 30, 30, 30, 30, 30, 30,
                                      30, 30, 30, 30, 30, 30, 30, 30,
                                      60, 60, 60, 60, 60, 60, 60, 60,
-
-
                                     };   //PWM数据
 
 
@@ -89,10 +88,11 @@ extern uint16_t  k3;
 uint16_t light_led_max;
 uint8_t  light_flag;
 uint16_t light_led_count;
-																		
-																		
-																		
-	void HLS_TO_RGB( uint8_t *r, uint8_t *g, uint8_t *b, double h, double l, double s,uint16_t led_n,uint8_t (*arr)[3]);
+
+
+
+void HLS_TO_RGB(uint8_t* r, uint8_t* g, uint8_t* b, double h, double l, double s, uint16_t led_n, uint8_t (*arr)[3]);
+void HLS_TO_RGB_ONE(uint8_t* r, uint8_t* g, uint8_t* b, double h, double l, double s, uint16_t led_n_LOC, uint8_t (*arr)[3]);
 /******注册完成回调不行************/
 /*DMA传输一半回调*/
 
@@ -501,7 +501,7 @@ void DMA_WS2812_SIN(uint16_t amount, uint8_t pwm, colors_kind color)
         }
         else if(color == red)
         {
-            ws28128_color_buf[j][0] =sin_y; //red
+            ws28128_color_buf[j][0] = sin_y; //red
             ws28128_color_buf[j][1] = 0; //gree
             ws28128_color_buf[j][2] = 0;	 //blue
         }
@@ -578,17 +578,114 @@ void DMA_WS2812_data_shift(uint16_t led_location)
 {
 
     memset(ws28128_color_buf, 0, sizeof(ws28128_color_buf));
-    ws28128_color_buf[led_location + 1][0] = 255; //gree
-    ws28128_color_buf[led_location + 2][1] = 255; //red
-    ws28128_color_buf[led_location][2] = 255;	 //blue
-    ws28128_color_buf[led_location + 3][0] = 255;	 //blue
-    ws28128_color_buf[led_location + 3][1] = 255;	 //blue
+    ws28128_color_buf[led_location][0] = 0; //R
+    ws28128_color_buf[led_location][1] = 0; //G
+    ws28128_color_buf[led_location][2] = 255; //blue
 
+    ws28128_color_buf[led_location + 1][0] = 0; //R
+    ws28128_color_buf[led_location + 1][1] = 255; //G
+    ws28128_color_buf[led_location + 1][2] = 0; //blue
+    ws28128_color_buf[led_location + 2][0] = 0; //R
+    ws28128_color_buf[led_location + 2][1] = 0; //G
+    ws28128_color_buf[led_location + 2][2] = 255; //blue
+
+    ws28128_color_buf[led_location + 3][0] = 0; //R
+    ws28128_color_buf[led_location + 3][1] = 255; //G
+    ws28128_color_buf[led_location + 3][2] = 0; //blue
+    ws28128_color_buf[led_location + 4][0] = 0; //R
+    ws28128_color_buf[led_location + 4][1] = 0; //G
+    ws28128_color_buf[led_location + 4][2] = 255; //blue
+
+    ws28128_color_buf[led_location + 5][0] = 0; //R
+    ws28128_color_buf[led_location + 5][1] = 255; //G
+    ws28128_color_buf[led_location + 5][2] = 0; //blue
 
 
 
 }
+/***多个灭数据移位************/
+void DMA_WS2812_data_shift_more(uint16_t led_location, uint16_t run_number)
+{
 
+//    memset(ws28128_color_buf, 0, sizeof(ws28128_color_buf));
+    ws28128_color_buf[led_location][0] = 255; //R
+    ws28128_color_buf[led_location][1] = 0; //G
+    ws28128_color_buf[led_location][2] = 0; //blue
+
+    ws28128_color_buf[led_location + 1][0] = 255; //R
+    ws28128_color_buf[led_location + 1][1] = 0; //G
+    ws28128_color_buf[led_location + 1][2] = 0; //blue
+    ws28128_color_buf[led_location + 2][0] = 255; //R
+    ws28128_color_buf[led_location + 2][1] = 0; //G
+    ws28128_color_buf[led_location + 2][2] = 0; //blue
+
+    ws28128_color_buf[led_location + 3][0] = 255; //R
+    ws28128_color_buf[led_location + 3][1] = 0; //G
+    ws28128_color_buf[led_location + 3][2] = 0; //blue
+    ws28128_color_buf[led_location + 4][0] = 255; //R
+    ws28128_color_buf[led_location + 4][1] = 0; //G
+    ws28128_color_buf[led_location + 4][2] = 0; //blue
+
+    ws28128_color_buf[led_location + 5][0] = 255; //R
+    ws28128_color_buf[led_location + 5][1] = 0; //G
+    ws28128_color_buf[led_location + 5][2] = 0; //blue
+
+    if(led_location > 20)
+    {
+        ws28128_color_buf[led_location - 20][0] = 0; //R
+        ws28128_color_buf[led_location - 20][1] = 255; //G
+        ws28128_color_buf[led_location - 20][2] = 0; //blue
+
+        ws28128_color_buf[led_location - 19][0] = 0; //R
+        ws28128_color_buf[led_location - 19][1] = 255; //G
+        ws28128_color_buf[led_location - 19][2] = 0; //blue
+        ws28128_color_buf[led_location - 19][0] = 0; //R
+        ws28128_color_buf[led_location - 19][1] = 255; //G
+        ws28128_color_buf[led_location - 19][2] = 0; //blue
+
+        ws28128_color_buf[led_location - 18][0] = 0; //R
+        ws28128_color_buf[led_location - 18][1] = 255; //G
+        ws28128_color_buf[led_location - 18][2] = 0; //blue
+        ws28128_color_buf[led_location - 18][0] = 0; //R
+        ws28128_color_buf[led_location - 18][1] = 255; //G
+        ws28128_color_buf[led_location - 18][2] = 0; //blue
+
+        ws28128_color_buf[led_location - 17][0] = 0; //R
+        ws28128_color_buf[led_location - 17][1] = 255; //G
+        ws28128_color_buf[led_location - 17][2] = 0; //blue
+
+
+    }
+    if(led_location > 30)
+    {
+        ws28128_color_buf[led_location - 30][0] = 0; //R
+        ws28128_color_buf[led_location - 30][1] = 0; //G
+        ws28128_color_buf[led_location - 30][2] = 255; //blue
+
+        ws28128_color_buf[led_location - 29][0] = 0; //R
+        ws28128_color_buf[led_location - 29][1] = 0; //G
+        ws28128_color_buf[led_location - 29][2] = 255; //blue
+        ws28128_color_buf[led_location - 29][0] = 0; //R
+        ws28128_color_buf[led_location - 29][1] = 0; //G
+        ws28128_color_buf[led_location - 29][2] = 255; //blue
+
+        ws28128_color_buf[led_location - 28][0] = 0; //R
+        ws28128_color_buf[led_location - 28][1] = 0; //G
+        ws28128_color_buf[led_location - 28][2] = 255; //blue
+        ws28128_color_buf[led_location - 28][0] = 0; //R
+        ws28128_color_buf[led_location - 28][1] = 0; //G
+        ws28128_color_buf[led_location - 28][2] = 255; //blue
+
+        ws28128_color_buf[led_location - 27][0] = 0; //R
+        ws28128_color_buf[led_location - 27][1] = 0; //G
+        ws28128_color_buf[led_location - 27][2] = 255; //blue
+
+
+    }
+
+
+
+}
 void DMA_WS2812_Ramp(volatile uint16_t  amount, uint8_t pwm, colors_kind color)
 {
     for(uint16_t m = 0; m < pwm; m++)
@@ -657,6 +754,16 @@ void DMA_WS2812_Run(volatile uint16_t  amount)
         HAL_Delay(20);
     }
     memset(ws28128_color_buf, 0, sizeof(ws28128_color_buf));
+    for(uint16_t m = 0; m < amount; m++)
+    {
+
+        DMA_WS2812_data_shift_light(amount - m, amount);
+        DMA_WS2812_Reset();
+        HAL_Delay(1);
+        DMA_WS2812_light(amount);
+        HAL_Delay(20);
+    }
+    memset(ws28128_color_buf, 0, sizeof(ws28128_color_buf));
 
 //     DMA_WS2812_Mie(amount);
 
@@ -668,7 +775,7 @@ void DMA_WS2812_Rampping(volatile uint16_t  amount, uint8_t pwm, colors_kind col
     {
 
 
-         DMA_WS2812_SIN_More(amount, m, 1);
+        DMA_WS2812_SIN_More(amount, m, 1);
         DMA_WS2812_Reset();
         HAL_Delay(1);
         DMA_WS2812_light(amount);
@@ -681,15 +788,15 @@ void DMA_WS2812_Rampping(volatile uint16_t  amount, uint8_t pwm, colors_kind col
 /*********单中颜色渐变***************/
 void DMA_WS2812_Rampping_1(volatile uint16_t  amount, uint8_t pwm, colors_kind color)
 {
-	   uint8_t r,g,b;
-	   double cou=0;
+    uint8_t r, g, b;
+    double cou = 0;
     for(uint16_t m = 0; m < pwm; m++)
     {
-          
+
 //      HLS2RGB( uint8_t *r, uint8_t *g, uint8_t *b, double h, double l, double s);
 //        DMA_WS2812_SIN(amount, m,  color);
-	//		HLS_TO_RGB( uint8_t *r, uint8_t *g, uint8_t *b, double h, double l, double s,uint16_t led_n,uint8_t arr[][3])
-   		HLS_TO_RGB( &r, &g, &b,m*1.4,0.05, 1,amount,ws28128_color_buf);
+        //		HLS_TO_RGB( uint8_t *r, uint8_t *g, uint8_t *b, double h, double l, double s,uint16_t led_n,uint8_t arr[][3])
+        HLS_TO_RGB_ALL(&r, &g, &b, m * 1.4, 0.30, 1, amount, ws28128_color_buf);
 //		   	DMA_WS2812_SIN(amount, m,  2);
         DMA_WS2812_Reset();
         HAL_Delay(1);
@@ -699,13 +806,79 @@ void DMA_WS2812_Rampping_1(volatile uint16_t  amount, uint8_t pwm, colors_kind c
 
     }
 
+
 }
 void DMA_WS2812_Running(volatile uint16_t  amount)
 {
     for(uint16_t m = 0; m < amount; m++)
     {
-      
+
         DMA_WS2812_data_shift(m);
+        DMA_WS2812_Reset();
+        HAL_Delay(1);
+        DMA_WS2812_light(amount);
+        HAL_Delay(50);
+    }
+//		  for(uint16_t m = 0; m < amount; m++)
+//    {
+
+//        DMA_WS2812_data_shift(amount-m);
+//        DMA_WS2812_Reset();
+//        HAL_Delay(1);
+//        DMA_WS2812_light(amount);
+//        HAL_Delay(50);
+//    }
+
+
+
+}
+/***********多条灯跑起来****************/
+void DMA_WS2812_Running_more(volatile uint16_t  amount, volatile uint16_t run_number)
+{
+    for(uint16_t m = 0; m < amount; m++)
+    {
+
+        DMA_WS2812_data_shift_more(m, 10);
+        DMA_WS2812_Reset();
+        HAL_Delay(1);
+        DMA_WS2812_light(amount);
+        HAL_Delay(30);
+    }
+
+    for(uint16_t m = 0; m < amount; m++)
+    {
+
+        DMA_WS2812_data_shift_more(amount - m, 10);
+        DMA_WS2812_Reset();
+        HAL_Delay(1);
+        DMA_WS2812_light(amount);
+        HAL_Delay(30);
+    }
+}
+void  arrange_buf()
+{
+
+
+
+
+}
+/***********色表**************/
+void  arrange_display(volatile uint16_t  amount)
+{
+    uint8_t r, g, b;
+    for(uint16_t m = 0; m < amount; m++)
+    {
+
+        HLS_TO_RGB_ONE(&r, &g, &b, m * 1.4, 0.30, 1, m, ws28128_color_buf);
+        DMA_WS2812_Reset();
+        HAL_Delay(1);
+        DMA_WS2812_light(amount);
+        HAL_Delay(30);
+    }
+    for(uint16_t m = 0; m < amount; m++)
+    {
+
+        HLS_TO_RGB_ONE(&r, &g, &b, m * 1.4, 0.30, 1, amount - m, ws28128_color_buf);
         DMA_WS2812_Reset();
         HAL_Delay(1);
         DMA_WS2812_light(amount);
@@ -713,8 +886,195 @@ void DMA_WS2812_Running(volatile uint16_t  amount)
     }
 
 
+}
+/***********色表2合一**************/
+void  arrange_display_two(volatile uint16_t  amount)
+{
+    uint8_t r, g, b;
+    for(uint16_t m = 0; m < amount; m++)
+    {
+
+        HLS_TO_RGB_ONE(&r, &g, &b, m * 1.4, 0.30, 1, m, ws28128_color_buf);
+        HLS_TO_RGB_ONE(&r, &g, &b, m * 1.4, 0.30, 1, amount - m, ws28128_color_buf);
+        DMA_WS2812_Reset();
+        HAL_Delay(1);
+        DMA_WS2812_light(amount);
+        HAL_Delay(30);
+    }
+    for(uint16_t m = 0; m < amount; m++)
+    {
+
+        HLS_TO_RGB_ONE(&r, &g, &b, m * 1.4, 0.30, 1, amount - m, ws28128_color_buf);
+        HLS_TO_RGB_ONE(&r, &g, &b, m * 1.4, 0.30, 1, m, ws28128_color_buf);
+        DMA_WS2812_Reset();
+        HAL_Delay(1);
+        DMA_WS2812_light(amount);
+        HAL_Delay(30);
+    }
+
 
 }
+/***********每个色转一遍**************/
+void  arrange_display_two_run(volatile uint16_t  amount)
+{
+    uint8_t r, g, b;
+    for(uint16_t m = 0; m < 48; m++)
+    {
+        memset(ws28128_color_buf, 0, sizeof(ws28128_color_buf));
+        for(uint16_t i = 0; i < amount / 2; i++)
+        {
+
+            HLS_TO_RGB_ONE(&r, &g, &b, m * 5, 0.30, 1, i, ws28128_color_buf);
+            HLS_TO_RGB_ONE(&r, &g, &b, m * 5, 0.30, 1, amount - i, ws28128_color_buf);
+            DMA_WS2812_Reset();
+            HAL_Delay(1);
+            DMA_WS2812_light(amount);
+            HAL_Delay(10);
+        }
+        memset(ws28128_color_buf, 0, sizeof(ws28128_color_buf));
+        for(uint16_t i = 0; i < amount / 2; i++)
+        {
+
+            HLS_TO_RGB_ONE(&r, &g, &b, m * 5, 0.30, 1, amount / 2 - i, ws28128_color_buf);
+            HLS_TO_RGB_ONE(&r, &g, &b, m * 5, 0.30, 1, amount / 2 + i, ws28128_color_buf);
+            DMA_WS2812_Reset();
+            HAL_Delay(1);
+            DMA_WS2812_light(amount);
+            HAL_Delay(10);
+        }
+
+    }
+}
+void DMA_WS2812_data_shift_light_one_run(uint16_t led_location, uint16_t led_max, uint16_t color_ytpr)
+{
+    uint8_t r, g, b;
+
+
+    for(uint16_t i = 0; i < led_max; i++)
+    {
+        if(i < (led_max / 4))
+        {
+
+            HLS_TO_RGB_ONE(&r, &g, &b, 1 * 5, 0.30, 1, i + led_location, ws28128_color_buf);
+
+        }
+
+        else if(i > (led_max / 4 - 1) && (i < (led_max / 2)))
+        {
+
+            HLS_TO_RGB_ONE(&r, &g, &b, 1 * 300, 0.30, 1, i + led_location, ws28128_color_buf);
+        }
+        else if(i > (led_max / 2 - 1) && (i < (led_max / 4) * 3))
+        {
+
+            HLS_TO_RGB_ONE(&r, &g, &b, 1 * 200, 0.30, 1, i + led_location, ws28128_color_buf);
+        }
+        else if((i > (led_max / 4) * 3 - 1) && (i < led_max))
+        {
+            HLS_TO_RGB_ONE(&r, &g, &b, 1 * 100, 0.30, 1, i + led_location, ws28128_color_buf);
+        }
+    }
+
+
+}
+
+/***********每个色循环往下跑**********未完成****/
+void  arrange_display_one_run(volatile uint16_t  amount, uint16_t color_type_n)
+{
+    uint8_t r, g, b;
+    uint8_t r1, r2, r3, r4;
+
+    for(uint16_t m = 1; m < 90; m++)
+    {
+        for(uint16_t i = 0; i < amount * 2; i++)
+        {
+            if(i < (amount / 4)) //i=44
+            {
+
+                HLS_TO_RGB_ONE(&r, &g, &b, m * 5, 0.30, 1, i, ws28128_color_buf); //5
+
+            }
+
+            else if(i > (amount / 4 - 1) && (i < (amount / 2))) //i=45  i=89
+            {
+
+                HLS_TO_RGB_ONE(&r, &g, &b, m * 5, 0.30, 1, i, ws28128_color_buf);  //2
+                HLS_TO_RGB_ONE(&r, &g, &b, m * 10, 0.30, 1, i - (amount / 4), ws28128_color_buf); //1
+
+            }
+            else if(i > (amount / 2 - 1) && (i < (amount / 4) * 3))//i=90  i=135
+            {
+
+                HLS_TO_RGB_ONE(&r, &g, &b, m * 5, 0.30, 1, i, ws28128_color_buf); //3
+                HLS_TO_RGB_ONE(&r, &g, &b, m * 10, 0.30, 1, i - (amount / 4), ws28128_color_buf); //2
+                HLS_TO_RGB_ONE(&r, &g, &b, m * 20, 0.30, 1, (i - (amount / 4) * 2), ws28128_color_buf); //3
+            }
+            else if((i > (amount / 4) * 3 - 1) && (i < amount * 2)) //i=135  i=180
+            {
+                HLS_TO_RGB_ONE(&r, &g, &b, m * 5, 0.30, 1, i, ws28128_color_buf); //4ge
+                HLS_TO_RGB_ONE(&r, &g, &b, m * 10, 0.30, 1, i - (amount / 4), ws28128_color_buf); //3
+                HLS_TO_RGB_ONE(&r, &g, &b, m * 20, 0.30, 1, (i - (amount / 4) * 2), ws28128_color_buf); //2
+                HLS_TO_RGB_ONE(&r, &g, &b, m * 30, 0.30, 1, (i - (amount / 4) * 3), ws28128_color_buf); //1
+            }
+
+            DMA_WS2812_Reset();
+            HAL_Delay(1);
+            DMA_WS2812_light(amount);
+            HAL_Delay(100);
+
+        }
+    }
+}
+
+
+
+
+
+
+
+
+
+void  	rand_buff_data(volatile uint16_t  amount, uint16_t color_type_n)
+{
+
+    uint16_t rand_data, rand_color,rand_col;
+	
+    uint8_t r, g, b;
+    memset(ws28128_color_buf, 0, sizeof(ws28128_color_buf));
+    for(uint16_t t = 0; t < 30; t++)
+    {
+
+        srand(HAL_GetTick());
+        rand_data = rand() % amount;
+			  rand_col = rand() % 100;
+        rand_color = rand() % 360;
+        HLS_TO_RGB_ONE(&r, &g, &b,rand_color, rand_col*0.01, 1, rand_data, ws28128_color_buf);
+    }
+
+
+}
+void ws2812_rand_light(volatile uint16_t  amount)
+{
+
+    uint16_t rand_data, rand_color;
+    for(uint16_t i = 0; i < 360; i++)
+    {
+
+
+        rand_data = rand() % 256;
+
+        rand_buff_data(180, i);
+        DMA_WS2812_Reset();
+        HAL_Delay(1);
+        DMA_WS2812_light(180 );
+        HAL_Delay(30);
+
+    }
+
+
+}
+
+
 /**
   *@brief gets the maximun value of rgb
 	*@param r_data   value of red range( 0-255)
@@ -722,143 +1082,183 @@ void DMA_WS2812_Running(volatile uint16_t  amount)
 	*@param b_data   value of red range( 0-255)
 	*@retval   renturn RGB maximum number
   */
-uint8_t get_rgb_max_value(uint8_t r_data,uint8_t g_data,uint8_t b_data)
+uint8_t get_rgb_max_value(uint8_t r_data, uint8_t g_data, uint8_t b_data)
 {
-	     uint8_t temp_value;
-	
-	  temp_value =(r_data) > (g_data) ? (r_data) : (g_data);
-	  temp_value =(b_data) > (temp_value) ? (b_data) : (temp_value);
-	
-	
-       return temp_value;
+    uint8_t temp_value;
+
+    temp_value = (r_data) > (g_data) ? (r_data) : (g_data);
+    temp_value = (b_data) > (temp_value) ? (b_data) : (temp_value);
+
+
+    return temp_value;
 }
 /**
   *@brief gets the minimum value of rgb
   *@param r_data   value of red range( 0-255)
   *@param g_data   value of red range( 0-255)
-	*@param b_data   value of red range( 0-255) 
+	*@param b_data   value of red range( 0-255)
   */
-double get_rgb_min_value(double r_data,double g_data,double b_data)
+double get_rgb_min_value(double r_data, double g_data, double b_data)
 {
-	     double temp_value;
-	
-	  temp_value =(r_data) <(g_data) ? (r_data) : (g_data);
-	  temp_value =(b_data) <(temp_value) ? (b_data) : (temp_value);
-	
-	
-       return temp_value;
+    double temp_value;
+
+    temp_value = (r_data) < (g_data) ? (r_data) : (g_data);
+    temp_value = (b_data) < (temp_value) ? (b_data) : (temp_value);
+
+
+    return temp_value;
 }
 /**
-  *@brizf 
-  * 
+  *@brizf
+  *
   */
 
-void RGB2HLS( double *h, double *l, double *s, uint8_t r_data, uint8_t g_data, uint8_t b_data)
+void RGB2HLS(double* h, double* l, double* s, uint8_t r_data, uint8_t g_data, uint8_t b_data)
 {
-    double dr = (double)r_data/255;
-    double dg = (double)g_data/255;
-    double db = (double)b_data/255;
+    double dr = (double)r_data / 255;
+    double dg = (double)g_data / 255;
+    double db = (double)b_data / 255;
 
-    double cmax = get_rgb_max_value(dr,dg,db);
-    double cmin = get_rgb_min_value(dr,dg,db);
+    double cmax = get_rgb_max_value(dr, dg, db);
+    double cmin = get_rgb_min_value(dr, dg, db);
     double cdes = cmax - cmin;
     double hh, ll, ss;
-    
-    ll = (cmax+cmin)/2.0;
-	   if(cdes==0)
-		 {
-			 hh=0;
-       ss=0;			 
-		 }
-     else{
-        if(ll <0.5)
-            ss = (cmax-cmin)/(cmax+cmin);
-        else
-            ss = (cmax-cmin)/(2-cmax-cmin);
- 
-        if(cmax == dr)
-            hh = (0+(dg-db)/cdes)*60;
-        else if(cmax == dg)
-            hh = (2+(db-dr)/cdes)*60;
-        else// if(cmax == b)
-            hh = (4+(dr-dg)/cdes)*60;
-        if(hh<0)
-            hh+=360;
+
+    ll = (cmax + cmin) / 2.0;
+    if(cdes == 0)
+    {
+        hh = 0;
+        ss = 0;
     }
- 
+    else
+    {
+        if(ll < 0.5)
+            ss = (cmax - cmin) / (cmax + cmin);
+        else
+            ss = (cmax - cmin) / (2 - cmax - cmin);
+
+        if(cmax == dr)
+            hh = (0 + (dg - db) / cdes) * 60;
+        else if(cmax == dg)
+            hh = (2 + (db - dr) / cdes) * 60;
+        else// if(cmax == b)
+            hh = (4 + (dr - dg) / cdes) * 60;
+        if(hh < 0)
+            hh += 360;
+    }
+
     *h = hh;
     *l = ll;
     *s = ss;
 }
 
-double HLS2RGBvalue(double n1,double n2, double hue)
+double HLS2RGBvalue(double n1, double n2, double hue)
 {
     if(hue > 360)
         hue -= 360;
     else if(hue < 0)
         hue += 360;
     if(hue < 60)
-        return n1+(n2-n1)*hue/60;
+        return n1 + (n2 - n1) * hue / 60;
     else if(hue < 180)
         return n2;
     else if(hue < 240)
-        return n1+(n2-n1)*(240-hue)/60;
+        return n1 + (n2 - n1) * (240 - hue) / 60;
     else
         return n1;
 }
-void HLS2RGB( uint8_t *r, uint8_t *g, uint8_t *b, double h, double l, double s)
+void HLS2RGB(uint8_t* r, uint8_t* g, uint8_t* b, double h, double l, double s)
 {
-    double cmax,cmin;
- 
+    double cmax, cmin;
+
     if(l < 0.5)
-        cmax = l*(1+s);
+        cmax = l * (1 + s);
     else
-        cmax = l*(1-s)+s;
-    cmin = 2*l-cmax;
- 
-    if(s == 0){
-        *r = *g = *b = l*255;
-    }else{
-        *r = HLS2RGBvalue(cmin,cmax,h+120)*255;
-        *g = HLS2RGBvalue(cmin,cmax,h)*255;
-        *b = HLS2RGBvalue(cmin,cmax,h-120)*255;
+        cmax = l * (1 - s) + s;
+    cmin = 2 * l - cmax;
+
+    if(s == 0)
+    {
+        *r = *g = *b = l * 255;
+    }
+    else
+    {
+        *r = HLS2RGBvalue(cmin, cmax, h + 120) * 255;
+        *g = HLS2RGBvalue(cmin, cmax, h) * 255;
+        *b = HLS2RGBvalue(cmin, cmax, h - 120) * 255;
     }
 }
 
-void HLS_TO_RGB( uint8_t *r, uint8_t *g, uint8_t *b, double h, double l, double s,uint16_t led_n,uint8_t (*arr)[3])
+void HLS_TO_RGB_ALL(uint8_t* r, uint8_t* g, uint8_t* b, double h, double l, double s, uint16_t led_n, uint8_t (*arr)[3])
 {
-    double cmax,cmin;
- 
+    double cmax, cmin;
+
     if(l < 0.5)
-        cmax = l*(1+s);
+        cmax = l * (1 + s);
     else
-        cmax = l*(1-s)+s;
-    cmin = 2*l-cmax;
- 
-    if(s == 0){
-        *r = *g = *b = l*255;
-			  for(uint16_t i=0;i<led_n;i++)
-			  {  
-					  for(uint16_t j=0;j<3;j++)
-					 {
-			         ws28128_color_buf[i][j]= l*255;
+        cmax = l * (1 - s) + s;
+    cmin = 2 * l - cmax;
+
+    if(s == 0)
+    {
+        *r = *g = *b = l * 255;
+        for(uint16_t i = 0; i < led_n; i++)
+        {
+            for(uint16_t j = 0; j < 3; j++)
+            {
+                ws28128_color_buf[i][j] = l * 255;
 //						 	printf("i0=%d:%d\r\n", i, ws28128_color_buf[i][j]);
-					 }
-				}
-    }else{
-        *r = HLS2RGBvalue(cmin,cmax,h+120)*255;
-        *g = HLS2RGBvalue(cmin,cmax,h)*255;
-        *b = HLS2RGBvalue(cmin,cmax,h-120)*255;
-			  	  for(uint16_t i=0;i<led_n;i++)
-			  {  
-					 
-			         ws28128_color_buf[i][0]= HLS2RGBvalue(cmin,cmax,h+120)*255;
-					     ws28128_color_buf[i][1]= HLS2RGBvalue(cmin,cmax,h)*255;
-				       ws28128_color_buf[i][2]= HLS2RGBvalue(cmin,cmax,h-120)*255;
+            }
+        }
+    }
+    else
+    {
+        *r = HLS2RGBvalue(cmin, cmax, h + 120) * 255;
+        *g = HLS2RGBvalue(cmin, cmax, h) * 255;
+        *b = HLS2RGBvalue(cmin, cmax, h - 120) * 255;
+        for(uint16_t i = 0; i < led_n; i++)
+        {
+
+            ws28128_color_buf[i][0] = HLS2RGBvalue(cmin, cmax, h + 120) * 255;
+            ws28128_color_buf[i][1] = HLS2RGBvalue(cmin, cmax, h) * 255;
+            ws28128_color_buf[i][2] = HLS2RGBvalue(cmin, cmax, h - 120) * 255;
 //					printf("i0=%d:%d\r\n", i, ws28128_color_buf[i][0]);
 //					printf("i1=%d:%d\r\n",  i,ws28128_color_buf[i][1]);
 //					printf("i2=%d:%d\r\n",  i,ws28128_color_buf[i][2]);
-					 
-				}
+
+        }
+    }
+}
+void HLS_TO_RGB_ONE(uint8_t* r, uint8_t* g, uint8_t* b, double h, double l, double s, uint16_t led_n_LOC, uint8_t (*arr)[3])
+{
+    double cmax, cmin;
+
+    if(l < 0.5)
+        cmax = l * (1 + s);
+    else
+        cmax = l * (1 - s) + s;
+    cmin = 2 * l - cmax;
+
+    if(s == 0)
+    {
+        *r = *g = *b = l * 255;
+
+        for(uint16_t j = 0; j < 3; j++)
+        {
+            ws28128_color_buf[led_n_LOC][j] = l * 255;
+
+        }
+
+    }
+    else
+    {
+        *r = HLS2RGBvalue(cmin, cmax, h + 120) * 255;
+        *g = HLS2RGBvalue(cmin, cmax, h) * 255;
+        *b = HLS2RGBvalue(cmin, cmax, h - 120) * 255;
+
+        ws28128_color_buf[led_n_LOC][0] = HLS2RGBvalue(cmin, cmax, h + 120) * 255;
+        ws28128_color_buf[led_n_LOC][1] = HLS2RGBvalue(cmin, cmax, h) * 255;
+        ws28128_color_buf[led_n_LOC][2] = HLS2RGBvalue(cmin, cmax, h - 120) * 255;
+
     }
 }
