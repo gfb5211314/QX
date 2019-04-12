@@ -274,7 +274,7 @@
               </OCR_RVCT3>
               <OCR_RVCT4>
                 <Type>1</Type>
-                <StartAddress>0x8001800</StartAddress>
+                <StartAddress>0x8000000</StartAddress>
                 <Size>0x10000</Size>
               </OCR_RVCT4>
               <OCR_RVCT5>
@@ -338,7 +338,7 @@
               <MiscControls>--C99</MiscControls>
               <Define>USE_HAL_DRIVER,STM32F103xB,ARM_MATH_CM3</Define>
               <Undefine></Undefine>
-              <IncludePath>../Inc;    ../Drivers/STM32F1xx_HAL_Driver/Inc;    ../Drivers/STM32F1xx_HAL_Driver/Inc/Legacy;    ../Drivers/CMSIS/Device/ST/STM32F1xx/Include;    ../Drivers/CMSIS/Include;    ..\BSP</IncludePath>
+              <IncludePath>../Inc;../Drivers/STM32F1xx_HAL_Driver/Inc;../Drivers/STM32F1xx_HAL_Driver/Inc/Legacy;../Drivers/CMSIS/Device/ST/STM32F1xx/Include;../Drivers/CMSIS/Include;..\BSP;..\App</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -566,6 +566,26 @@
               <FileName>bsp_update.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\BSP\bsp_update.c</FilePath>
+            </File>
+            <File>
+              <FileName>bsp_esp32.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\BSP\bsp_esp32.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>App</GroupName>
+          <Files>
+            <File>
+              <FileName>ws2812_app.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\App\ws2812_app.c</FilePath>
+            </File>
+            <File>
+              <FileName>esp32_app.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\App\esp32_app.c</FilePath>
             </File>
           </Files>
         </Group>

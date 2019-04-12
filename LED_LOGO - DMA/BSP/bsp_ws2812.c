@@ -17,7 +17,7 @@ extern DMA_HandleTypeDef hdma_tim2_ch1;
 
 #define BIT_1                      61u //1比较值为61 850us
 #define BIT_0                      29u //0比较值为28 400us 
-#define  LED_NUM                   24*100
+#define  LED_NUM                   24*200
 
 /* Private variables ---------------------------------------------------------*/
 uint16_t ab[LED_NUM];
@@ -686,21 +686,7 @@ void DMA_WS2812_data_shift_more(uint16_t led_location, uint16_t run_number)
 
 
 }
-void DMA_WS2812_Ramp(volatile uint16_t  amount, uint8_t pwm, colors_kind color)
-{
-    for(uint16_t m = 0; m < pwm; m++)
-    {
 
-        DMA_WS2812_SIN(amount, m, color);
-        DMA_WS2812_Reset();
-        HAL_Delay(10);
-        DMA_WS2812_light(amount);
-        HAL_Delay(10);
-
-
-    }
-
-}
 
 
 
@@ -742,119 +728,10 @@ void DMA_WS2812_data_shift_light(uint16_t led_location, uint16_t led_max)
 
 }
 
-void DMA_WS2812_Run(volatile uint16_t  amount)
-{
-    for(uint16_t m = 0; m < amount; m++)
-    {
-
-        DMA_WS2812_data_shift_light(m, amount);
-        DMA_WS2812_Reset();
-        HAL_Delay(1);
-        DMA_WS2812_light(amount);
-        HAL_Delay(20);
-    }
-    memset(ws28128_color_buf, 0, sizeof(ws28128_color_buf));
-    for(uint16_t m = 0; m < amount; m++)
-    {
-
-        DMA_WS2812_data_shift_light(amount - m, amount);
-        DMA_WS2812_Reset();
-        HAL_Delay(1);
-        DMA_WS2812_light(amount);
-        HAL_Delay(20);
-    }
-    memset(ws28128_color_buf, 0, sizeof(ws28128_color_buf));
-
-//     DMA_WS2812_Mie(amount);
-
-}
-/***多种颜色一起渐变***************/
-void DMA_WS2812_Rampping(volatile uint16_t  amount, uint8_t pwm, colors_kind color)
-{
-    for(uint16_t m = 0; m < pwm; m++)
-    {
-
-
-        DMA_WS2812_SIN_More(amount, m, 1);
-        DMA_WS2812_Reset();
-        HAL_Delay(1);
-        DMA_WS2812_light(amount);
-        HAL_Delay(20);
-
-
-    }
-
-}
-/*********单中颜色渐变***************/
-void DMA_WS2812_Rampping_1(volatile uint16_t  amount, uint8_t pwm, colors_kind color)
-{
-    uint8_t r, g, b;
-    double cou = 0;
-    for(uint16_t m = 0; m < pwm; m++)
-    {
-
-//      HLS2RGB( uint8_t *r, uint8_t *g, uint8_t *b, double h, double l, double s);
-//        DMA_WS2812_SIN(amount, m,  color);
-        //		HLS_TO_RGB( uint8_t *r, uint8_t *g, uint8_t *b, double h, double l, double s,uint16_t led_n,uint8_t arr[][3])
-        HLS_TO_RGB_ALL(&r, &g, &b, m * 1.4, 0.30, 1, amount, ws28128_color_buf);
-//		   	DMA_WS2812_SIN(amount, m,  2);
-        DMA_WS2812_Reset();
-        HAL_Delay(1);
-        DMA_WS2812_light(amount);
-        HAL_Delay(100);
-
-
-    }
-
-
-}
-void DMA_WS2812_Running(volatile uint16_t  amount)
-{
-    for(uint16_t m = 0; m < amount; m++)
-    {
-
-        DMA_WS2812_data_shift(m);
-        DMA_WS2812_Reset();
-        HAL_Delay(1);
-        DMA_WS2812_light(amount);
-        HAL_Delay(50);
-    }
-//		  for(uint16_t m = 0; m < amount; m++)
-//    {
-
-//        DMA_WS2812_data_shift(amount-m);
-//        DMA_WS2812_Reset();
-//        HAL_Delay(1);
-//        DMA_WS2812_light(amount);
-//        HAL_Delay(50);
-//    }
 
 
 
-}
-/***********多条灯跑起来****************/
-void DMA_WS2812_Running_more(volatile uint16_t  amount, volatile uint16_t run_number)
-{
-    for(uint16_t m = 0; m < amount; m++)
-    {
 
-        DMA_WS2812_data_shift_more(m, 10);
-        DMA_WS2812_Reset();
-        HAL_Delay(1);
-        DMA_WS2812_light(amount);
-        HAL_Delay(30);
-    }
-
-    for(uint16_t m = 0; m < amount; m++)
-    {
-
-        DMA_WS2812_data_shift_more(amount - m, 10);
-        DMA_WS2812_Reset();
-        HAL_Delay(1);
-        DMA_WS2812_light(amount);
-        HAL_Delay(30);
-    }
-}
 void  arrange_buf()
 {
 
@@ -862,89 +739,9 @@ void  arrange_buf()
 
 
 }
-/***********色表**************/
-void  arrange_display(volatile uint16_t  amount)
-{
-    uint8_t r, g, b;
-    for(uint16_t m = 0; m < amount; m++)
-    {
-
-        HLS_TO_RGB_ONE(&r, &g, &b, m * 1.4, 0.30, 1, m, ws28128_color_buf);
-        DMA_WS2812_Reset();
-        HAL_Delay(1);
-        DMA_WS2812_light(amount);
-        HAL_Delay(30);
-    }
-    for(uint16_t m = 0; m < amount; m++)
-    {
-
-        HLS_TO_RGB_ONE(&r, &g, &b, m * 1.4, 0.30, 1, amount - m, ws28128_color_buf);
-        DMA_WS2812_Reset();
-        HAL_Delay(1);
-        DMA_WS2812_light(amount);
-        HAL_Delay(30);
-    }
 
 
-}
-/***********色表2合一**************/
-void  arrange_display_two(volatile uint16_t  amount)
-{
-    uint8_t r, g, b;
-    for(uint16_t m = 0; m < amount; m++)
-    {
 
-        HLS_TO_RGB_ONE(&r, &g, &b, m * 1.4, 0.30, 1, m, ws28128_color_buf);
-        HLS_TO_RGB_ONE(&r, &g, &b, m * 1.4, 0.30, 1, amount - m, ws28128_color_buf);
-        DMA_WS2812_Reset();
-        HAL_Delay(1);
-        DMA_WS2812_light(amount);
-        HAL_Delay(30);
-    }
-    for(uint16_t m = 0; m < amount; m++)
-    {
-
-        HLS_TO_RGB_ONE(&r, &g, &b, m * 1.4, 0.30, 1, amount - m, ws28128_color_buf);
-        HLS_TO_RGB_ONE(&r, &g, &b, m * 1.4, 0.30, 1, m, ws28128_color_buf);
-        DMA_WS2812_Reset();
-        HAL_Delay(1);
-        DMA_WS2812_light(amount);
-        HAL_Delay(30);
-    }
-
-
-}
-/***********每个色转一遍**************/
-void  arrange_display_two_run(volatile uint16_t  amount)
-{
-    uint8_t r, g, b;
-    for(uint16_t m = 0; m < 48; m++)
-    {
-        memset(ws28128_color_buf, 0, sizeof(ws28128_color_buf));
-        for(uint16_t i = 0; i < amount / 2; i++)
-        {
-
-            HLS_TO_RGB_ONE(&r, &g, &b, m * 5, 0.30, 1, i, ws28128_color_buf);
-            HLS_TO_RGB_ONE(&r, &g, &b, m * 5, 0.30, 1, amount - i, ws28128_color_buf);
-            DMA_WS2812_Reset();
-            HAL_Delay(1);
-            DMA_WS2812_light(amount);
-            HAL_Delay(10);
-        }
-        memset(ws28128_color_buf, 0, sizeof(ws28128_color_buf));
-        for(uint16_t i = 0; i < amount / 2; i++)
-        {
-
-            HLS_TO_RGB_ONE(&r, &g, &b, m * 5, 0.30, 1, amount / 2 - i, ws28128_color_buf);
-            HLS_TO_RGB_ONE(&r, &g, &b, m * 5, 0.30, 1, amount / 2 + i, ws28128_color_buf);
-            DMA_WS2812_Reset();
-            HAL_Delay(1);
-            DMA_WS2812_light(amount);
-            HAL_Delay(10);
-        }
-
-    }
-}
 void DMA_WS2812_data_shift_light_one_run(uint16_t led_location, uint16_t led_max, uint16_t color_ytpr)
 {
     uint8_t r, g, b;
@@ -978,67 +775,14 @@ void DMA_WS2812_data_shift_light_one_run(uint16_t led_location, uint16_t led_max
 
 }
 
-/***********每个色循环往下跑**********未完成****/
-void  arrange_display_one_run(volatile uint16_t  amount, uint16_t color_type_n)
-{
-    uint8_t r, g, b;
-    uint8_t r1, r2, r3, r4;
-
-    for(uint16_t m = 1; m < 90; m++)
-    {
-        for(uint16_t i = 0; i < amount * 2; i++)
-        {
-            if(i < (amount / 4)) //i=44
-            {
-
-                HLS_TO_RGB_ONE(&r, &g, &b, m * 5, 0.30, 1, i, ws28128_color_buf); //5
-
-            }
-
-            else if(i > (amount / 4 - 1) && (i < (amount / 2))) //i=45  i=89
-            {
-
-                HLS_TO_RGB_ONE(&r, &g, &b, m * 5, 0.30, 1, i, ws28128_color_buf);  //2
-                HLS_TO_RGB_ONE(&r, &g, &b, m * 10, 0.30, 1, i - (amount / 4), ws28128_color_buf); //1
-
-            }
-            else if(i > (amount / 2 - 1) && (i < (amount / 4) * 3))//i=90  i=135
-            {
-
-                HLS_TO_RGB_ONE(&r, &g, &b, m * 5, 0.30, 1, i, ws28128_color_buf); //3
-                HLS_TO_RGB_ONE(&r, &g, &b, m * 10, 0.30, 1, i - (amount / 4), ws28128_color_buf); //2
-                HLS_TO_RGB_ONE(&r, &g, &b, m * 20, 0.30, 1, (i - (amount / 4) * 2), ws28128_color_buf); //3
-            }
-            else if((i > (amount / 4) * 3 - 1) && (i < amount * 2)) //i=135  i=180
-            {
-                HLS_TO_RGB_ONE(&r, &g, &b, m * 5, 0.30, 1, i, ws28128_color_buf); //4ge
-                HLS_TO_RGB_ONE(&r, &g, &b, m * 10, 0.30, 1, i - (amount / 4), ws28128_color_buf); //3
-                HLS_TO_RGB_ONE(&r, &g, &b, m * 20, 0.30, 1, (i - (amount / 4) * 2), ws28128_color_buf); //2
-                HLS_TO_RGB_ONE(&r, &g, &b, m * 30, 0.30, 1, (i - (amount / 4) * 3), ws28128_color_buf); //1
-            }
-
-            DMA_WS2812_Reset();
-            HAL_Delay(1);
-            DMA_WS2812_light(amount);
-            HAL_Delay(100);
-
-        }
-    }
-}
-
-
-
-
-
-
 
 
 
 void  	rand_buff_data(volatile uint16_t  amount, uint16_t color_type_n)
 {
 
-    uint16_t rand_data, rand_color,rand_col;
-	
+    uint16_t rand_data, rand_color, rand_col;
+
     uint8_t r, g, b;
     memset(ws28128_color_buf, 0, sizeof(ws28128_color_buf));
     for(uint16_t t = 0; t < 30; t++)
@@ -1046,33 +790,14 @@ void  	rand_buff_data(volatile uint16_t  amount, uint16_t color_type_n)
 
         srand(HAL_GetTick());
         rand_data = rand() % amount;
-			  rand_col = rand() % 100;
+        rand_col = rand() % 100;
         rand_color = rand() % 360;
-        HLS_TO_RGB_ONE(&r, &g, &b,rand_color, rand_col*0.01, 1, rand_data, ws28128_color_buf);
+        HLS_TO_RGB_ONE(&r, &g, &b, rand_color, rand_col * 0.01, 1, rand_data, ws28128_color_buf);
     }
 
 
 }
-void ws2812_rand_light(volatile uint16_t  amount)
-{
 
-    uint16_t rand_data, rand_color;
-    for(uint16_t i = 0; i < 360; i++)
-    {
-
-
-        rand_data = rand() % 256;
-
-        rand_buff_data(180, i);
-        DMA_WS2812_Reset();
-        HAL_Delay(1);
-        DMA_WS2812_light(180 );
-        HAL_Delay(30);
-
-    }
-
-
-}
 
 
 /**
@@ -1229,6 +954,7 @@ void HLS_TO_RGB_ALL(uint8_t* r, uint8_t* g, uint8_t* b, double h, double l, doub
         }
     }
 }
+
 void HLS_TO_RGB_ONE(uint8_t* r, uint8_t* g, uint8_t* b, double h, double l, double s, uint16_t led_n_LOC, uint8_t (*arr)[3])
 {
     double cmax, cmin;

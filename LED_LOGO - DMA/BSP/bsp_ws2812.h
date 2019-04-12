@@ -136,7 +136,7 @@ void shift_buf_to_data_two(uint16_t led_location);
 
 void GRBTOPWM(uint16_t led_max);
 
-void ws2812_init();
+void ws2812_init( void);
 
 void  SET_PWM_DMA_DODE(uint32_t mode);
 
@@ -231,8 +231,10 @@ void HLS2RGB(uint8_t* r, uint8_t* g, uint8_t* b, double h, double l, double s);
 void HLS_TO_RGB_ALL(uint8_t* r, uint8_t* g, uint8_t* b, double h, double l, double s, uint16_t led_n, uint8_t (*arr)[3]);
 
 
+void  	rand_buff_data(volatile uint16_t  amount, uint16_t color_type_n);
 
-
-
+extern void HLS_TO_RGB(uint8_t* r, uint8_t* g, uint8_t* b, double h, double l, double s, uint16_t led_n, uint8_t (*arr)[3]);
+extern void HLS_TO_RGB_ONE(uint8_t* r, uint8_t* g, uint8_t* b, double h, double l, double s, uint16_t led_n_LOC, uint8_t (*arr)[3]);
+extern void DMA_WS2812_data_shift_more(uint16_t led_location, uint16_t run_number);
 #endif
 

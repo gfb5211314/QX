@@ -49,6 +49,7 @@
 #include "stm_flash.h"
 #include "string.h"
 #include <stdlib.h>
+#include "ws2812_app.h"
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
@@ -88,7 +89,7 @@ void MX_NVIC_Init(void);
 
 void HAL_TIM_MspPostInit(TIM_HandleTypeDef* htim);
 
-  
+
 /* USER CODE END PFP */
 
 /* USER CODE BEGIN 0 */
@@ -168,13 +169,13 @@ int main(void)
 
     /* USER CODE BEGIN 1 */
     uint8_t a;
-	 SCB->VTOR = 0x8000000 | (0x1800 & (uint32_t)0x1FFFFF80);
+//	 SCB->VTOR = 0x8000000 | (0x1800 & (uint32_t)0x1FFFFF80);
     /* USER CODE END 1 */
-    double h1, l1, s1;
-    uint8_t r, g, b;
+//    double h1, l1, s1;
+//    uint8_t r, g, b;
     /* MCU Configuration----------------------------------------------------------*/
-  uint8_t  aBuffer[2]={1,2};
-	  uint8_t  bBuffer[2];
+    uint8_t  aBuffer[2] = {1, 2};
+    uint8_t  bBuffer[2];
     /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
     HAL_Init();
 
@@ -204,10 +205,9 @@ int main(void)
 
 //  HAL_TIM_Base_Start(&htim3);
 //HAL_ADC_Start_DMA(&hadc1, (uint32_t*)uhADCxConvertedValue1, (TEST_LENGTH_SAMPLES/2));
-  STMFLASH_Write(0x8008800 , (uint16_t *)aBuffer, 2 );
-  STMFLASH_Read (0x8008800 , (uint16_t *)bBuffer, 1 );
+//  STMFLASH_Write(0x8008800 , (uint16_t *)aBuffer, 2 );
+//  STMFLASH_Read (0x8008800 , (uint16_t *)bBuffer, 1 );
 //
-
 
 
 
@@ -218,11 +218,12 @@ int main(void)
     while(1)
     {
 
+//				  arrange_display(180);
         /* USER CODE END WHILE */
 
         /* USER CODE BEGIN 3 */
         /*	if(CON_FALG==1)
-			
+
         	{
         CON_FALG=0;
           for(uint16_t i=0;i<(TEST_LENGTH_SAMPLES/2);i++)
@@ -244,25 +245,18 @@ int main(void)
         //        	DMA_WS2812_Running(256);
         }*/
 //
-        
 
 
-
-
-//		HAL_Delay(500);
-//        DMA_WS2812_Run(180);
-//        DMA_WS2812_Rampping(180, 255, 2);
-//        DMA_WS2812_Rampping_1(180, 255, 1);
-//        DMA_WS2812_Run(180);
-////        DMA_WS2812_Running(189);
-//        DMA_WS2812_Running_more(189,10);
-//				arrange_display(180);
-//				arrange_display_two(180);
-//				arrange_display_two_run(180);
-//				arrange_display_one_run(180,360);
-//				
-
-   ws2812_rand_light(256);
+        DMA_WS2812_Running_more(180, 10);
+        DMA_WS2812_Run(180);
+        DMA_WS2812_Rampping(180, 255, 2);
+        DMA_WS2812_Rampping_1(180, 255, 1);
+        DMA_WS2812_Running(189);
+        arrange_display(180);
+        arrange_display_two(180);
+        arrange_display_two_run(180);
+//        arrange_display_one_run(180, 360);
+        ws2812_rand_light(180);
 //DMA_WS2812_light(100);
     }
     /* USER CODE END 3 */
