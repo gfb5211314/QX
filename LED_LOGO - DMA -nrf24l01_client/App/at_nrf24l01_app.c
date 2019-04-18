@@ -5,6 +5,7 @@
 #include "string.h"
 #include <stdlib.h>
 #include <stdio.h>
+#include "cmsis_os.h"
 extern UART_HandleTypeDef huart3;
 extern USART_RECEIVETYPE  UsartType3;
 extern uint8_t TX_ADDRESS[TX_ADR_WIDTH]; //SEND ADDR
@@ -41,7 +42,7 @@ uint8_t set_nrf24l01_baud(uint32_t baud, uint16_t wait_time)
         p_baud = "AT+BAUD=7\r\n";
     }
     HAL_UART_Transmit_DMA(&huart3, (uint8_t*)p_baud, 11);
-    HAL_Delay(wait_time);
+    osDelay(wait_time);
 //	 if(UsartType3.RX_flag==1)
 //	 {
 //       for(uint8_t i=0;i<UsartType3.RX_Size;i++)
@@ -87,7 +88,7 @@ uint8_t set_nrf24l01_rate(uint16_t rate, uint16_t wait_time)
 
 
     HAL_UART_Transmit_DMA(&huart3, (uint8_t*)p_rate, 11);
-    HAL_Delay(wait_time);
+    osDelay(wait_time);
 //	 if(UsartType3.RX_flag==1)
 //	 {
 ////       for(uint8_t i=0;i<UsartType3.RX_Size;i++)
@@ -121,7 +122,7 @@ uint8_t set_nrf24l01_recevie_addr(uint8_t* recaddr, uint16_t wait_time)
 //    char* p_receive;
 //    p_receive = "AT+RXA=0xb0,0x43,0x10,0x10,0x01";
     HAL_UART_Transmit_DMA(&huart3, (uint8_t*)recaddr, 50);
-    HAL_Delay(wait_time);
+    osDelay(wait_time);
 //	 if(UsartType3.RX_flag==1)
 //	 {
 //       for(uint8_t i=0;i<UsartType3.RX_Size;i++)
@@ -183,7 +184,7 @@ uint8_t set_nrf24l01_send_addr(uint8_t* sentaddr, uint16_t wait_time)
 uint8_t set_nrf24l01_freq(uint8_t* freq, uint16_t wait_time)
 {
     HAL_UART_Transmit_DMA(&huart3, (uint8_t*)freq, 30);
-    HAL_Delay(wait_time);
+    osDelay(wait_time);
 //    if(UsartType3.RX_flag == 1)
 //    {
 //        for(uint8_t i = 0; i < UsartType3.RX_Size; i++)
